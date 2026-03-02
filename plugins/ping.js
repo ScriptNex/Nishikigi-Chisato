@@ -1,12 +1,12 @@
-export default{
+export default {
 
  command:"ping",
 
  async execute(ctx){
 
-  await ctx.reply(
-   "🏓 Pong! Nishikigi Chisato activa 🌸"
-  )
+  if(!ctx?.reply) return
+
+  await ctx.reply("🏓 Pong 🌸")
 
  }
 
