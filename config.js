@@ -1,15 +1,13 @@
 export default {
 
- sessionPath:"./session",
+ botName:"Nishikigi Chisato",
+
+ session:"./session",
 
  plugins:"./plugins",
 
  prefix:["."],
 
- owner:[
-  "584125014674"
- ],
-
- botName:"Nishikigi Chisato"
+ owner:[]
 
 }
