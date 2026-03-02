@@ -1,23 +1,19 @@
 import { createAPI } from "whispa-js"
 import config from "./config.js"
 
-console.log(`🌸 Iniciando ${config.botName}...`)
-
 async function start(){
 
  try{
 
+  console.log(`🌸 Iniciando ${config.botName}...`)
+
   await createAPI(config)
 
-  console.log("[INFO] started")
-  console.log("[INFO] Whispa Engine started")
+ }catch(e){
 
- }catch(err){
+  console.error("❌ Error iniciando bot")
 
-  console.error(
-   "❌ Error iniciando:",
-   err
-  )
+  console.error(e)
 
   process.exit(1)
 
