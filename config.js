@@ -6,7 +6,7 @@ export default {
 
  owner: [],
 
- plugins: "./plugins",
+ pluginsDir: "./plugins",
 
  logLevel: "info",
 
