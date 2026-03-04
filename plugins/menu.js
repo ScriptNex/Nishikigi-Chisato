@@ -1,5 +1,6 @@
 export default {
 
+ name: "menu",
  command: "menu",
  aliases: ["help"],
 
@@ -9,7 +10,7 @@ export default {
    "🌸 *Nishikigi Chisato*\n\nSelecciona una opción:",
    [
     { id: ".ping", text: "🏓 Ping" },
-    { id: ".jadibot", text: "🤖 Jadibot" },
+    { id: ".code", text: "🤖 Jadibot" },
     { id: ".listbot", text: "📜 Subbots" }
    ],
    "Whispa Framework"
