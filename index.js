@@ -1,6 +1,4 @@
-import { createAPI } from "whispa-js"
-import { createConnection } from "whispa-js/src/core/connection.js"
-
+import { createAPI, createConnection } from "whispa-js"
 import config from "./config.js"
 
 async function start() {
@@ -17,9 +15,7 @@ async function start() {
   logger: console
  })
 
- connection.onSocketUpdate(sock => {
-  api.lifecycle.start()
- })
+ api.start()
 
  console.log("🌸 Nishikigi Chisato iniciada")
 
