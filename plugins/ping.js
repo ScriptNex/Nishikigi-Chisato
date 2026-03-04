@@ -1,12 +1,19 @@
 export default {
 
- command:"ping",
+ command: "ping",
+ aliases: ["test"],
 
- async execute(ctx){
+ async execute(ctx) {
 
-  if(!ctx?.reply) return
+  const start = Date.now()
 
-  await ctx.reply("🏓 Pong 🌸")
+  await ctx.react("🏓")
+
+  const end = Date.now()
+
+  const speed = end - start
+
+  await ctx.reply(`🏓 Pong\n⚡ ${speed} ms`)
 
  }
 
