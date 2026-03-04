@@ -1,8 +1,16 @@
 {
   "name": "nishikigi-chisato",
-  "type": "module",
   "version": "1.1.0",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
-    "whispa-js": "github:ScriptNex/whispa-js"
+    "whispa-js": "github:ScriptNex/whispa-js",
+    "pino": "^9.0.0"
   }
 }
