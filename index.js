@@ -15,7 +15,11 @@ async function start() {
   logger: console
  })
 
+ api.start()
+
  connection.onSocketUpdate(sock => {
+
+  sock.ev.removeAllListeners("messages.upsert")
 
   sock.ev.on("messages.upsert", async ({ messages }) => {
 
@@ -30,8 +34,6 @@ async function start() {
   })
 
  })
-
- api.start()
 
  console.log("🌸 Nishikigi Chisato iniciada")
 
