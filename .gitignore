@@ -1,1 +1,11 @@
 session/
+node_modules/
+.env
+.env.local
+logs/
+*.log
+npm-debug.log
+package-lock.json
+yarn.lock
+.cache
+.DS_Store
