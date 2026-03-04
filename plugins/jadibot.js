@@ -1,14 +1,20 @@
 export default {
 
- command: "jadibot",
+ command: "code",
 
  async execute(ctx) {
 
-  const id = ctx.sender.split("@")[0]
+  const number = ctx.sender.split("@")[0]
 
-  await ctx.reply("🌸 Iniciando subbot...\nEscanea el QR en consola.")
+  const code = await ctx.sock.requestCode(number)
 
-  await ctx.sock.createSubBot(id)
+  if (!code) {
+   return ctx.reply("No se pudo generar el código")
+  }
+
+  await ctx.reply(
+   `🌸 Código de vinculación\n\n${code}\n\nWhatsApp → Dispositivos vinculados → Vincular con número`
+  )
 
  }
 
