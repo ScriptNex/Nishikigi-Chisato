@@ -5,35 +5,27 @@ async function start() {
 
  const connection = await createConnection({
   sessionPath: config.sessionPath,
-  botName: config.botName,
-  logger: console
+  botName: config.botName
  })
 
  const api = await createAPI({
   ...config,
-  connection,
-  logger: console
+  connection
  })
 
- api.start()
+ connection.sock.ev.on("messages.upsert", async ({ messages }) => {
 
- connection.onSocketUpdate(sock => {
+  const msg = messages?.[0]
+  if (!msg?.message) return
 
-  sock.ev.removeAllListeners("messages.upsert")
-
-  sock.ev.on("messages.upsert", async ({ messages }) => {
-
-   const msg = messages?.[0]
-   if (!msg || !msg.message) return
-
-   await api.handle({
-    raw: msg,
-    sock
-   })
-
+  await api.handle({
+   raw: msg,
+   sock: connection.sock
   })
 
  })
+
+ api.start()
 
  console.log("🌸 Nishikigi Chisato iniciada")
 
