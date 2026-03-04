@@ -1,48 +1,19 @@
 export default {
 
- command:"menu",
+ command: "menu",
+ aliases: ["help"],
 
- async execute(ctx){
+ async execute(ctx) {
 
-  await ctx.list({
-
-   title:"🌸 Nishikigi Chisato",
-   description:"Selecciona una opción disponible",
-   footer:"Whispa JS v1.2.2",
-   buttonText:"Abrir menú",
-
-   sections:[
-
-    {
-     title:"⚙️ Comandos",
-     rows:[
-      {
-       title:"Ping",
-       description:"Probar si el bot está activo",
-       id:".ping"
-      },
-      {
-       title:"Info",
-       description:"Ver información del bot",
-       id:".info"
-      }
-     ]
-    },
-
-    {
-     title:"📦 Sistema",
-     rows:[
-      {
-       title:"Estado",
-       description:"Ver estado actual",
-       id:".status"
-      }
-     ]
-    }
-
-   ]
-
-  })
+  await ctx.sendButtons(
+   "🌸 *Nishikigi Chisato*\n\nSelecciona una opción:",
+   [
+    { id: ".ping", text: "🏓 Ping" },
+    { id: ".jadibot", text: "🤖 Jadibot" },
+    { id: ".listbot", text: "📜 Subbots" }
+   ],
+   "Whispa Framework"
+  )
 
  }
 
