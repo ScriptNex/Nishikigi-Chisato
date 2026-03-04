@@ -13,7 +13,7 @@ export default {
   }
 
   await ctx.reply(
-   `🌸 Código de vinculación\n\n${code}\n\nWhatsApp → Dispositivos vinculados → Vincular con número`
+   `🌸 Código de vinculación\n\n${code}\n\nWhatsApp → Dispositivos vinculados`
   )
 
  }
