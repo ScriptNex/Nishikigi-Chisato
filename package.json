@@ -4,12 +4,13 @@
   "type": "module",
   "private": true,
   "engines": {
-    "node": ">=18"
+    "node": ">=18 <=25"
   },
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "whispa-js": "github:ScriptNex/whispa-js#Rain"
+    "whispa-js": "github:ScriptNex/whispa-js#Rain",
+    "pino": "^9.0.0"
   }
 }
