@@ -1,5 +1,6 @@
 import { createAPI } from "whispa-js"
-import { createConnection } from "./node_modules/whispa-js/src/core/connection.js"
+import { createConnection } from "whispa-js/src/core/connection.js"
+
 import config from "./config.js"
 
 async function start() {
@@ -16,18 +17,8 @@ async function start() {
   logger: console
  })
 
- api.start()
-
- connection.sock.ev.on("messages.upsert", async ({ messages }) => {
-
-  const msg = messages?.[0]
-  if (!msg || !msg.message) return
-
-  await api.handle({
-   raw: msg,
-   sock: connection.sock
-  })
-
+ connection.onSocketUpdate(sock => {
+  api.lifecycle.start()
  })
 
  console.log("🌸 Nishikigi Chisato iniciada")
