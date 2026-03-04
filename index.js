@@ -15,6 +15,22 @@ async function start() {
   logger: console
  })
 
+ connection.onSocketUpdate(sock => {
+
+  sock.ev.on("messages.upsert", async ({ messages }) => {
+
+   const msg = messages?.[0]
+   if (!msg || !msg.message) return
+
+   await api.handle({
+    raw: msg,
+    sock
+   })
+
+  })
+
+ })
+
  api.start()
 
  console.log("🌸 Nishikigi Chisato iniciada")
