@@ -10,7 +10,6 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "whispa-js": "github:ScriptNex/whispa-js",
-    "pino": "^9.0.0"
+    "whispa-js": "github:ScriptNex/whispa-js#Rain"
   }
 }
