@@ -3,9 +3,11 @@ import QRCode from 'qrcode';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import pino from 'pino';
-import { PluginLoader } from './PluginLoader.js';
-import { MessageHandler } from './MessageHandler.js';
-import { EconomyService } from '../services/economy/EconomyService.js';
+import { PluginLoader } from './PluginLoader.ts';
+import { MessageHandler } from './MessageHandler.ts';
+import { EconomyService } from '../services/economy/EconomyService.ts';
+import FileUtils from '../utils/FileUtils.ts';
+import { globalLogger } from '../utils/Logger.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
