@@ -13,7 +13,8 @@
   "dependencies": {
     "@imjxsx/wapi": "github:imjxsx/wapi",
     "qrcode": "^1.5.4",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "chalk": "^5.3.0"
   },
   "devDependencies": {
     "tsx": "^4.21.0",
