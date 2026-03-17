@@ -23,26 +23,39 @@ export const mentionUser = (userId: string) => {
 export const getName = async (bot: any, chatId: string | null, userId: string, pushName?: string): Promise<string> => {
     try {
         const sock = bot.ws || bot.sock || bot;
-        const fullJid = userId.includes('@') ? userId : `${userId}@s.whatsapp.net`;
+
+        const extractNum = (id: string | null | undefined): string => {
+            if (!id) return '';
+            let num = id.split('@')[0];
+            if (num.includes(':')) num = num.split(':')[1] || num.split(':')[0];
+            return num.replace(/\D/g, '');
+        };
+
+        const targetNum = extractNum(userId);
+        const fullJid = `${targetNum}@s.whatsapp.net`;
 
         if (sock.store && sock.store.contacts) {
             const contact = sock.store.contacts[fullJid];
-            if (contact) return contact.name || contact.notify || contact.verifiedName || pushName || fullJid.split('@')[0];
+            if (contact) return contact.name || contact.notify || contact.verifiedName || pushName || targetNum;
         }
 
         if (chatId && chatId.endsWith('@g.us')) {
             try {
                 const groupMetadata = await getCachedGroupMetadata(sock, chatId);
                 if (groupMetadata && groupMetadata.participants) {
-                    const participant = groupMetadata.participants.find((p: any) => p.id === fullJid);
-                    if (participant) return participant.notify || participant.name || pushName || fullJid.split('@')[0];
+                    const participant = groupMetadata.participants.find((p: any) => {
+                        const pNum = extractNum(p.id);
+                        const pLidNum = p.lid ? extractNum(p.lid) : '';
+                        return pNum === targetNum || pLidNum === targetNum;
+                    });
+                    if (participant) return participant.notify || participant.name || pushName || targetNum;
                 }
             } catch {}
         }
 
-        return pushName || fullJid.split('@')[0];
+        return pushName || targetNum;
     } catch {
-        return pushName || userId.split('@')[0];
+        return pushName || userId.split('@')[0].replace(/\D/g, '');
     }
 };
 
