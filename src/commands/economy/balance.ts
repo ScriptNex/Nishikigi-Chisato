@@ -20,7 +20,7 @@ export default {
         const bank = user.bank ?? 0;
         const total = coins + bank;
 
-        const username = await getName(bot, chatId, targetJid) || 'Usuario';
+        const username = (await getName(bot, chatId, targetJid)) || message.pushName || 'Usuario';
 
         const text =
             `ꕣ *Balance de @${username}*\n\n` +
