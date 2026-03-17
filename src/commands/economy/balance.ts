@@ -1,4 +1,5 @@
-import { formatNumberLarge, styleText } from '../../utils/formatters.ts';
+import { formatNumberLarge } from '../../utils/formatters.ts';
+import { styleText } from '../../utils/helpers.ts';
 
 export default {
     name: 'balance',
