@@ -1,9 +1,7 @@
 export default {
     name: 'menu',
-
     async execute({ bot, message }: any) {
         const chat = message.key.remoteJid
-
         const text = `
 ╭━━━〔 Nishikigi Chisato 〕━━━⬣
 ┃
@@ -13,7 +11,6 @@ export default {
 ┃
 ╰━━━━━━━━━━━━━━━━⬣
         `.trim()
-
         await bot.sendMessage(chat, { text })
     }
 }
