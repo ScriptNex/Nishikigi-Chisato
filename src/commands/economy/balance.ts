@@ -3,7 +3,7 @@ import { getName } from '../../utils/helpers.ts';
 
 export default {
     name: 'balance',
-    aliases: ['bal', 'saldo'],
+    aliases: ['bal', 'saldo', '#balance'],
     async execute({ bot, message, services }: any) {
         const chatId = message.key.remoteJid;
         if (!chatId) return;
@@ -21,9 +21,10 @@ export default {
         const total = coins + bank;
 
         const username = await getName(bot, chatId, targetJid, message.pushName);
+        const jidNumber = targetJid.split('@')[0];
 
         const text =
-            `ꕣ Balance de @${username}\n\n` +
+            `ꕣ *Balance de @${jidNumber}*\n\n` +
             `⟡ Billetera: *¥${formatNumberLarge(coins)}*\n` +
             `⟡ Banco: *¥${formatNumberLarge(bank)}*\n` +
             `⟡ Total: *¥${formatNumberLarge(total)}*`;
