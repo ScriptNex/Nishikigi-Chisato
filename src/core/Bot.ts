@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { PluginLoader } from './PluginLoader.ts';
 import { v4 as uuidv4 } from 'uuid';
+import pino from 'pino';
 import { globalLogger as logger } from '../utils/Logger.ts';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -28,14 +29,8 @@ export class Bot {
         const auth = new LocalAuth(uuid, path.join(__dirname, '..', 'sessions'));
         this.bot = new WapiBot(uuid, auth, { jid: '', pn: '', name: '' });
 
-        this.bot.logger = {
-            level: 'silent',
-            info: () => {},
-            warn: () => {},
-            error: console.error,
-            trace: () => {},
-            debug: () => {}
-        };
+        
+        this.bot.logger = pino({ level: 'silent' });
 
         this.bot.on('qr', async (qr: string) => {
             const qrString = await QRCode.toString(qr, { type: 'terminal', small: true });
