@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename)
 export class Bot {
     bot: WapiBot | null
     pluginLoader: PluginLoader
-    messageHandler: MessageHandler
+    messageHandler: MessageHandler | null
     uuid: string
     sessionsDir: string
     logger: pino.Logger
@@ -26,7 +26,7 @@ export class Bot {
         this.bot = null
         this.logger = pino({ level: 'error' })
         this.services = { economy: new EconomyService() }
-        this.messageHandler = new MessageHandler(this.pluginLoader.commands, this.services)
+        this.messageHandler = null
     }
 
     async initialize() {
@@ -54,6 +54,7 @@ export class Bot {
             this.logger.info(`Bot conectado: ${account.name || 'Nishikigi Chisato'}`)
             this.bot?.ws.ev.on('messages.upsert', ({ messages }: { messages: any[] }) => {
                 for (const m of messages) {
+                    if (!this.messageHandler) continue
                     this.messageHandler.handleMessage(this.bot!, m).catch(err => this.logger.error(err))
                 }
             })
