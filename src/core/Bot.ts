@@ -4,7 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { PluginLoader } from './PluginLoader.ts';
 import { MessageHandler } from '../handlers/MessageHandler.ts';
-import { EconomyService } from '../services/EconomyService.ts';
+import { EconomyService } from '../services/economy/EconomyService.ts';
 import pino from 'pino';
 
 const __filename = fileURLToPath(import.meta.url);
