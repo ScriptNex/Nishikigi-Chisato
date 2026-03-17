@@ -11,10 +11,12 @@ const __dirname = path.dirname(__filename);
 export class Bot {
     bot: any;
     pluginLoader: PluginLoader;
+    uuid: string;
 
-    constructor() {
+    constructor(uuid?: string) {
         this.pluginLoader = new PluginLoader();
         this.bot = null;
+        this.uuid = uuid || '00000000-0000-0000-0000-000000000000';
     }
 
     async initialize() {
@@ -23,8 +25,8 @@ export class Bot {
     }
 
     async initializeBot() {
-        const auth = new LocalAuth('default', 'sessions');
-        this.bot = new WapiBot('default', auth, { jid: '', pn: '', name: '' });
+        const auth = new LocalAuth(this.uuid, path.join(__dirname, '..', 'sessions'));
+        this.bot = new WapiBot(this.uuid, auth, { jid: '', pn: '', name: '' });
 
         this.bot.on('qr', async (qr: string) => {
             const qrString = await QRCode.toString(qr, { type: 'terminal', small: true });
