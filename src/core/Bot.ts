@@ -3,7 +3,7 @@ import QRCode from 'qrcode';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { PluginLoader } from './PluginLoader.ts';
-import { MessageHandler } from './MessageHandler.ts';
+import { MessageHandler } from '../handlers/MessageHandler.ts';
 import { EconomyService } from '../services/economy/EconomyService.ts';
 import pino from 'pino';
 
@@ -14,10 +14,10 @@ export class Bot {
     bot: WapiBot | null;
     pluginLoader: PluginLoader;
     messageHandler: MessageHandler;
-    economy: EconomyService;
     uuid: string;
     sessionsDir: string;
     logger: pino.Logger;
+    services: { economy: EconomyService };
 
     constructor() {
         this.uuid = '4f3b2a1c-7e9a-4d2f-8b6f-12a3456b7890';
@@ -25,8 +25,8 @@ export class Bot {
         this.pluginLoader = new PluginLoader();
         this.bot = null;
         this.logger = pino({ level: 'error' });
-        this.economy = new EconomyService();
-        this.messageHandler = new MessageHandler(new Map(), { economy: this.economy });
+        this.services = { economy: new EconomyService() };
+        this.messageHandler = new MessageHandler(new Map(), this.services);
     }
 
     async initialize() {
