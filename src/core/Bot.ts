@@ -27,7 +27,15 @@ export class Bot {
         const uuid = uuidv4();
         const auth = new LocalAuth(uuid, path.join(__dirname, '..', 'sessions'));
         this.bot = new WapiBot(uuid, auth, { jid: '', pn: '', name: '' });
-        this.bot.logger.level = 'error';
+
+        this.bot.logger = {
+            level: 'silent',
+            info: () => {},
+            warn: () => {},
+            error: console.error,
+            trace: () => {},
+            debug: () => {}
+        };
 
         this.bot.on('qr', async (qr: string) => {
             const qrString = await QRCode.toString(qr, { type: 'terminal', small: true });
