@@ -1,5 +1,3 @@
-import { MessageHandler as BaseHandler } from '@imjxsx/wapi';
-
 export class MessageHandler {
     commands: Map<string, any>;
     services: any;
