@@ -75,29 +75,23 @@ class MemoryManager extends EventEmitter {
 
     getActiveBuffersSize(): number {
         let total = 0;
-        for (const [, data] of this.activeBuffers) {
-            total += data.size || 0;
-        }
+        for (const [, data] of this.activeBuffers) total += data.size || 0;
         return total;
     }
 
     canProcessDownload(estimatedSize: number = 0) {
         const status = this.getMemoryStatus();
-
         if (estimatedSize > MEMORY_LIMITS.MAX_DOWNLOAD_SIZE) {
             logger.warn(`[MemoryManager] Rechazado por tamaño: ${this.formatBytes(estimatedSize)} > ${this.formatBytes(MEMORY_LIMITS.MAX_DOWNLOAD_SIZE)}`);
             this.stats.rejectedBySize++;
             return { allowed: false, reason: 'FILE_TOO_LARGE', message: 'Archivo muy grande.' };
         }
-
         const activeSize = this.getActiveBuffersSize();
         if (this.activeBuffers.size < 5) return { allowed: true, availableMemory: status.freeMemory };
-
         if (activeSize + estimatedSize > MEMORY_LIMITS.MAX_BUFFER_SIZE * 3) {
             logger.warn(`[MemoryManager] Rechazado por buffer lleno: ${this.formatBytes(activeSize)}`);
             return { allowed: false, reason: 'TOO_MANY_BUFFERS', message: 'Demasiadas descargas simultáneas.' };
         }
-
         return { allowed: true, availableMemory: status.freeMemory };
     }
 
