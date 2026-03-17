@@ -4,8 +4,8 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { PluginLoader } from './PluginLoader.ts'
 import { MessageHandler } from '../handlers/MessageHandler.ts'
-import { EconomyService } from '../services/economy/EconomyService.ts'
 import pino from 'pino'
+import { EconomyService } from '../services/economy/EconomyService.ts'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -17,7 +17,6 @@ export class Bot {
     uuid: string
     sessionsDir: string
     logger: pino.Logger
-    commands: Map<string, any>
     services: any
 
     constructor() {
@@ -26,23 +25,19 @@ export class Bot {
         this.pluginLoader = new PluginLoader()
         this.bot = null
         this.logger = pino({ level: 'error' })
-        this.commands = new Map()
-        this.services = {
-            economy: new EconomyService()
-        }
-        this.messageHandler = new MessageHandler(this.commands, this.services)
+        this.services = { economy: new EconomyService() }
+        this.messageHandler = new MessageHandler(this.pluginLoader.commands, this.services)
     }
 
     async initialize() {
+        this.logger.info('Inicializando Nishikigi Chisato...')
         await this.loadCommands()
+        this.messageHandler = new MessageHandler(this.pluginLoader.commands, this.services)
         await this.initializeBot()
     }
 
     async loadCommands() {
-        this.commands = await this.pluginLoader.loadCommands(
-            path.join(__dirname, '..', 'commands')
-        )
-        this.messageHandler.commands = this.commands
+        await this.pluginLoader.loadCommands(path.join(__dirname, '..', 'commands'))
     }
 
     async initializeBot() {
@@ -51,6 +46,7 @@ export class Bot {
         ;(this.bot as any).logger = this.logger
 
         this.bot.on('qr', async (qr: string) => {
+            this.logger.info('Escanea este código QR:')
             console.log(await QRCode.toString(qr, { type: 'terminal', small: true }))
         })
 
@@ -58,7 +54,7 @@ export class Bot {
             this.logger.info(`Bot conectado: ${account.name || 'Nishikigi Chisato'}`)
             this.bot?.ws.ev.on('messages.upsert', ({ messages }: { messages: any[] }) => {
                 for (const m of messages) {
-                    this.messageHandler.handle(this.bot!, m).catch(err => this.logger.error(err))
+                    this.messageHandler.handleMessage(this.bot!, m).catch(err => this.logger.error(err))
                 }
             })
         })
