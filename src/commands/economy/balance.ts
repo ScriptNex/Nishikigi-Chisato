@@ -21,10 +21,9 @@ export default {
         const total = coins + bank;
 
         const username = await getName(bot, chatId, targetJid);
-        const rawNumber = targetJid.split('@')[0].replace(/\D/g, '');
 
         const text =
-            `ꕣ *Balance de ${username} (@${rawNumber})*\n\n` +
+            `ꕣ *Balance de @${username}*\n\n` +
             `⟡ Billetera: *¥${formatNumberLarge(coins)}*\n` +
             `⟡ Banco: *¥${formatNumberLarge(bank)}*\n` +
             `⟡ Total: *¥${formatNumberLarge(total)}*`;
