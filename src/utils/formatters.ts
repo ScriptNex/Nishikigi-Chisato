@@ -1,8 +1,8 @@
-export const formatNumber = (num: number) => {
+export const formatNumber = (num: number): string => {
     return new Intl.NumberFormat('es-ES').format(num);
 };
 
-export const formatNumberLarge = (num: number) => {
+export const formatNumberLarge = (num: number): string => {
     const suffixes = [
         { val: 1e33, suffix: 'Dc' },
         { val: 1e30, suffix: 'No' },
@@ -25,11 +25,11 @@ export const formatNumberLarge = (num: number) => {
     return num.toString();
 };
 
-export const formatCoins = (amount: number) => {
+export const formatCoins = (amount: number): string => {
     return amount.toLocaleString('es-ES');
 };
 
-export const formatTime = (ms: number) => {
+export const formatTime = (ms: number): string => {
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
@@ -40,7 +40,7 @@ export const formatTime = (ms: number) => {
     return `${seconds}s`;
 };
 
-export const getCooldown = (lastTime: number, cooldownMs: number) => {
+export const getCooldown = (lastTime: number, cooldownMs: number): number => {
     const now = Date.now();
     const timeLeft = lastTime + cooldownMs - now;
     return timeLeft > 0 ? timeLeft : 0;
