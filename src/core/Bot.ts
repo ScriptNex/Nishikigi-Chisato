@@ -3,6 +3,7 @@ import QRCode from 'qrcode';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { PluginLoader } from './PluginLoader.ts';
+import { MessageHandler } from './MessageHandler.ts';
 import pino from 'pino';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -11,21 +12,32 @@ const __dirname = path.dirname(__filename);
 export class Bot {
     bot: WapiBot | null;
     pluginLoader: PluginLoader;
+    messageHandler: MessageHandler;
     uuid: string;
     sessionsDir: string;
     logger: pino.Logger;
 
     constructor() {
-        this.uuid = '4f3b2a1c-7e9a-4d2f-8b6f-12a3456b7890'; 
+        this.uuid = '4f3b2a1c-7e9a-4d2f-8b6f-12a3456b7890';
         this.sessionsDir = path.join(__dirname, '..', 'sessions');
         this.pluginLoader = new PluginLoader();
         this.bot = null;
         this.logger = pino({ level: 'error' });
+        this.messageHandler = new MessageHandler();
     }
 
     async initialize() {
         this.logger.info('Inicializando Nishikigi Chisato...');
+        await this.loadCommands();
         await this.initializeBot();
+    }
+
+    async loadCommands() {
+        const { commandMap, beforeHandlers } = await this.pluginLoader.loadCommands(
+            path.join(__dirname, '..', 'commands')
+        );
+        (global as any).commandMap = commandMap;
+        (global as any).beforeHandlers = beforeHandlers;
     }
 
     async initializeBot() {
@@ -40,6 +52,16 @@ export class Bot {
 
         this.bot.on('open', (account: any) => {
             this.logger.info(`Bot conectado: ${account.name || 'Nishikigi Chisato'}`);
+            (global as any).mainBot = this.bot;
+
+            
+            this.bot?.ws.ev.on('messages.upsert', ({ messages }: { messages: any[] }) => {
+                for (const m of messages) {
+                    this.messageHandler.handleMessage(this.bot!, m).catch(err =>
+                        this.logger.error('Error procesando mensaje:', err)
+                    );
+                }
+            });
         });
 
         this.bot.on('error', (err: any) => this.logger.error(err));
