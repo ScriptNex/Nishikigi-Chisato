@@ -37,11 +37,20 @@ class Logger {
         let prefix = '';
 
         switch (level) {
-            case 'DEBUG': prefix = chalk.cyan('🔎 [DEBUG]'); break;
-            case 'INFO': prefix = chalk.green('✠ [INFO]'); break;
-            case 'WARN': prefix = chalk.yellow('⚠ [WARN]'); break;
-            case 'ERROR': prefix = chalk.red('✘ [ERROR]'); break;
-            default: prefix = chalk.gray('• [LOG]');
+            case 'DEBUG':
+                prefix = chalk.cyan('🔎︎ [DEBUG]');
+                break;
+            case 'INFO':
+                prefix = chalk.green('✠ [INFO]');
+                break;
+            case 'WARN':
+                prefix = chalk.yellow('⚠︎ [WARN]');
+                break;
+            case 'ERROR':
+                prefix = chalk.red('✘ [ERROR]');
+                break;
+            default:
+                prefix = chalk.grey('• [LOG]');
         }
 
         let output = `${prefix} ${chalk.gray(`[${timestamp}]`)} ${chalk.bold(`[${this.context}]`)} ${message}`;
@@ -60,6 +69,7 @@ class Logger {
     }
 
     debug(message: string, data?: any): void { this.log('DEBUG', message, data); }
+    trace(message: string, data?: any): void { this.debug(message, data); } // <-- agregado
     info(message: string, data?: any): void { this.log('INFO', message, data); }
     warn(message: string, data?: any): void { this.log('WARN', message, data); }
     error(message: string, data?: any): void { this.log('ERROR', message, data); }
@@ -77,7 +87,6 @@ class Logger {
     }
 }
 
-const globalLogger = new Logger('Nishikigi', process.env.LOG_LEVEL || 'INFO');
-
+const globalLogger = new Logger('Alya', process.env.LOG_LEVEL || 'INFO');
 export { Logger, globalLogger };
 export default Logger;
