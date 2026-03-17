@@ -16,7 +16,7 @@ export class Bot {
     logger: pino.Logger;
 
     constructor() {
-        this.uuid = 'nishikigi-chisato'; 
+        this.uuid = '4f3b2a1c-7e9a-4d2f-8b6f-12a3456b7890'; 
         this.sessionsDir = path.join(__dirname, '..', 'sessions');
         this.pluginLoader = new PluginLoader();
         this.bot = null;
@@ -30,7 +30,7 @@ export class Bot {
 
     async initializeBot() {
         const auth = new LocalAuth(this.uuid, this.sessionsDir);
-        this.bot = new WapiBot(this.uuid, auth, { jid: '', pn: '', name: '' });
+        this.bot = new WapiBot(this.uuid, auth, { jid: '', pn: '', name: 'Nishikigi Chisato' });
         (this.bot as any).logger = this.logger;
 
         this.bot.on('qr', async (qr: string) => {
