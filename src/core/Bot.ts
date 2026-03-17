@@ -2,12 +2,10 @@ import { Bot as WapiBot, LocalAuth } from '@imjxsx/wapi';
 import QRCode from 'qrcode';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import pino from 'pino';
 import { PluginLoader } from './PluginLoader.ts';
-import { MessageHandler } from './MessageHandler.ts';
+import { MessageHandler } from '../handlers/MessageHandler.ts';
 import { EconomyService } from '../services/economy/EconomyService.ts';
-import FileUtils from '../utils/FileUtils.ts';
-import { globalLogger } from '../utils/Logger.ts';
+import { Logger, globalLogger } from '../utils/Logger.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,19 +14,22 @@ export class Bot {
     bot: WapiBot | null;
     pluginLoader: PluginLoader;
     messageHandler: MessageHandler;
+    services: { economy: EconomyService };
     uuid: string;
     sessionsDir: string;
-    logger: pino.Logger;
-    services: { economy: EconomyService };
+    logger: Logger;
 
     constructor() {
         this.uuid = '4f3b2a1c-7e9a-4d2f-8b6f-12a3456b7890';
         this.sessionsDir = path.join(__dirname, '..', 'sessions');
         this.pluginLoader = new PluginLoader();
         this.bot = null;
-        this.logger = pino({ level: 'info' });
-        this.messageHandler = new MessageHandler();
-        this.services = { economy: new EconomyService() };
+        this.logger = globalLogger;
+        this.messageHandler = new MessageHandler(new Map(), {});
+
+        this.services = {
+            economy: new EconomyService()
+        };
     }
 
     async initialize() {
@@ -41,6 +42,8 @@ export class Bot {
         const { commandMap, beforeHandlers } = await this.pluginLoader.loadCommands(
             path.join(__dirname, '..', 'commands')
         );
+        this.messageHandler.commands = commandMap;
+        this.messageHandler.services = this.services;
         (global as any).commandMap = commandMap;
         (global as any).beforeHandlers = beforeHandlers;
     }
@@ -59,13 +62,11 @@ export class Bot {
             this.logger.info(`Bot conectado: ${account.name || 'Nishikigi Chisato'}`);
             (global as any).mainBot = this.bot;
 
-            this.bot?.ws.ev.on('messages.upsert', async ({ messages }: { messages: any[] }) => {
+            this.bot?.ws.ev.on('messages.upsert', ({ messages }: { messages: any[] }) => {
                 for (const m of messages) {
-                    try {
-                        await this.messageHandler.handleMessage(this.bot!, m, this.services);
-                    } catch (err) {
-                        this.logger.error('Error procesando mensaje:', err);
-                    }
+                    this.messageHandler.handle(this.bot!, m).catch(err =>
+                        this.logger.error('Error procesando mensaje:', err)
+                    );
                 }
             });
         });
