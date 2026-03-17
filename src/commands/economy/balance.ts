@@ -13,7 +13,11 @@ export default {
         const bank = user.bank ?? 0;
         const total = coins + bank;
 
-        const username = senderJid.split('@')[0];
+        const rawNumber = senderJid.split('@')[0].replace(/[^0-9]/g, '');
+
+        const username =
+            message.pushName?.trim() ||
+            `+${rawNumber}`;
 
         const text = styleText(
             `ꕣ *Balance de @${username}*\n\n` +
