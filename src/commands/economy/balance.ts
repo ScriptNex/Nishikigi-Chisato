@@ -1,5 +1,5 @@
 import { formatNumberLarge } from '../../utils/formatters.ts';
-import { getName } from '../../utils/helpers.ts';
+import { getName, mentionUser } from '../../utils/helpers.ts';
 
 export default {
     name: 'balance',
