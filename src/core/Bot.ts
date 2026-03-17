@@ -2,10 +2,10 @@ import { Bot as WapiBot, LocalAuth } from '@imjxsx/wapi';
 import QRCode from 'qrcode';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { PluginLoader } from './PluginLoader.ts';
-import { MessageHandler } from '../handlers/MessageHandler.ts';
-import { EconomyService } from '../services/economy/EconomyService.ts';
+import { PluginLoader } from './PluginLoader.js';
+import { MessageHandler } from '../handlers/MessageHandler.js';
 import pino from 'pino';
+import { ServiceManager } from '../services/ServiceManager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,19 +14,19 @@ export class Bot {
     bot: WapiBot | null;
     pluginLoader: PluginLoader;
     messageHandler: MessageHandler;
+    services: ServiceManager;
     uuid: string;
     sessionsDir: string;
     logger: pino.Logger;
-    services: { economy: EconomyService };
 
     constructor() {
         this.uuid = '4f3b2a1c-7e9a-4d2f-8b6f-12a3456b7890';
         this.sessionsDir = path.join(__dirname, '..', 'sessions');
         this.pluginLoader = new PluginLoader();
+        this.messageHandler = new MessageHandler(new Map(), {});
+        this.services = new ServiceManager();
         this.bot = null;
         this.logger = pino({ level: 'error' });
-        this.services = { economy: new EconomyService() };
-        this.messageHandler = new MessageHandler(new Map(), this.services);
     }
 
     async initialize() {
@@ -36,9 +36,8 @@ export class Bot {
     }
 
     async loadCommands() {
-        const commands = await this.pluginLoader.loadCommands(
-            path.join(__dirname, '..', 'commands')
-        );
+        const commandsDir = path.join(__dirname, '..', 'commands');
+        const commands = await this.pluginLoader.loadCommands(commandsDir);
         this.messageHandler.commands = commands;
     }
 
