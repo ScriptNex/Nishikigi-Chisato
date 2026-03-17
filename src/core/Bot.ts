@@ -1,4 +1,4 @@
-import { Bot as WapiBot, LocalAuth, WASocket } from '@imjxsx/wapi';
+import { Bot as WapiBot, LocalAuth } from '@imjxsx/wapi';
 import QRCode from 'qrcode';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -31,7 +31,7 @@ export class Bot {
         const auth = new LocalAuth(this.uuid, this.sessionsDir);
         this.bot = new WapiBot(this.uuid, auth, { jid: '', pn: '', name: '' });
 
-    
+        
         (this.bot as any).logger = { level: 'error', child: () => ({ level: 'error' }) };
 
         this.bot.on('qr', async (qr: string) => {
