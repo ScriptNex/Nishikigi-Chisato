@@ -1,5 +1,5 @@
 import { normalize } from '../../utils/permissions.ts';
-import { formatNumberLarge, styleText } from '../../utils/formatters.ts';
+import { formatNumberLarge } from '../../utils/formatters.ts';
 
 export default {
     name: 'balance',
@@ -19,12 +19,11 @@ export default {
             message.pushName?.trim() ||
             `+${rawNumber}`;
 
-        const text = styleText(
+        const text =
             `ꕣ *Balance de @${username}*\n\n` +
             `⟡ Billetera: *¥${formatNumberLarge(coins)}*\n` +
             `⟡ Banco: *¥${formatNumberLarge(bank)}*\n` +
-            `⟡ Total: *¥${formatNumberLarge(total)}*`
-        );
+            `⟡ Total: *¥${formatNumberLarge(total)}*`;
 
         await bot.sendMessage(message.key.remoteJid, {
             text,
