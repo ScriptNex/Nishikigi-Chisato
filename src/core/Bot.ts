@@ -4,7 +4,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { PluginLoader } from './PluginLoader.ts';
 import pino from 'pino';
-import { randomUUID } from 'crypto';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,11 +16,11 @@ export class Bot {
     logger: pino.Logger;
 
     constructor() {
-        this.uuid = randomUUID();
+        this.uuid = 'nishikigi-chisato'; 
         this.sessionsDir = path.join(__dirname, '..', 'sessions');
         this.pluginLoader = new PluginLoader();
         this.bot = null;
-        this.logger = pino({ level: 'error' }); 
+        this.logger = pino({ level: 'error' });
     }
 
     async initialize() {
@@ -32,14 +31,11 @@ export class Bot {
     async initializeBot() {
         const auth = new LocalAuth(this.uuid, this.sessionsDir);
         this.bot = new WapiBot(this.uuid, auth, { jid: '', pn: '', name: '' });
-
-        
         (this.bot as any).logger = this.logger;
 
         this.bot.on('qr', async (qr: string) => {
-            this.logger.info('Escanea este código QR para iniciar sesión:');
-            const qrString = await QRCode.toString(qr, { type: 'terminal', small: true });
-            console.log(qrString);
+            this.logger.info('Escanea este código QR:');
+            console.log(await QRCode.toString(qr, { type: 'terminal', small: true }));
         });
 
         this.bot.on('open', (account: any) => {
