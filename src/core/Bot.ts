@@ -1,47 +1,41 @@
-import { Bot as WapiBot, LocalAuth } from '@imjxsx/wapi';
+import { Bot as WapiBot, LocalAuth, WASocket } from '@imjxsx/wapi';
 import QRCode from 'qrcode';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { PluginLoader } from './PluginLoader.ts';
 import { globalLogger as logger } from '../utils/Logger.ts';
-import fs from 'fs';
+import { randomUUID } from 'crypto';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const SESSION_FILE = path.join(__dirname, '..', 'sessions', 'uuid.txt');
-
 export class Bot {
-    bot: any;
+    bot: WapiBot | null;
     pluginLoader: PluginLoader;
     uuid: string;
+    sessionsDir: string;
 
     constructor() {
+        this.uuid = randomUUID();
+        this.sessionsDir = path.join(__dirname, '..', 'sessions');
         this.pluginLoader = new PluginLoader();
         this.bot = null;
-
-        
-        if (fs.existsSync(SESSION_FILE)) {
-            this.uuid = fs.readFileSync(SESSION_FILE, 'utf-8').trim();
-        } else {
-            this.uuid = require('crypto').randomUUID();
-            fs.mkdirSync(path.dirname(SESSION_FILE), { recursive: true });
-            fs.writeFileSync(SESSION_FILE, this.uuid);
-        }
     }
 
     async initialize() {
-        logger.info('✨ Inicializando Nishikigi Chisato...');
+        logger.info('Inicializando Nishikigi Chisato...');
         await this.initializeBot();
     }
 
     async initializeBot() {
-        const auth = new LocalAuth(this.uuid, path.join(__dirname, '..', 'sessions'));
+        const auth = new LocalAuth(this.uuid, this.sessionsDir);
         this.bot = new WapiBot(this.uuid, auth, { jid: '', pn: '', name: '' });
 
-        this.bot.logger.level = 'error';
+    
+        (this.bot as any).logger = { level: 'error', child: () => ({ level: 'error' }) };
 
         this.bot.on('qr', async (qr: string) => {
+            logger.info('Escanea este código QR para iniciar sesión:');
             const qrString = await QRCode.toString(qr, { type: 'terminal', small: true });
             console.log(qrString);
         });
@@ -50,14 +44,11 @@ export class Bot {
             logger.info(`Bot conectado: ${account.name || 'Nishikigi Chisato'}`);
         });
 
-        this.bot.on('close', () => {
-            logger.warn('Conexión cerrada');
-        });
-
         this.bot.on('error', (err: any) => logger.error(err));
     }
 
     async start() {
+        if (!this.bot) throw new Error('Bot no inicializado');
         await this.bot.login('qr');
     }
 }
