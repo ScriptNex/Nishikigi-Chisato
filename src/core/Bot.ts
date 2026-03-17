@@ -3,7 +3,7 @@ import QRCode from 'qrcode';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { PluginLoader } from './PluginLoader.ts';
-import { MessageHandler } from './MessageHandler.ts';
+import { MessageHandler } from '../handlers/MessageHandler.ts';
 import pino from 'pino';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -12,7 +12,7 @@ const __dirname = path.dirname(__filename);
 export class Bot {
     bot: WapiBot | null;
     pluginLoader: PluginLoader;
-    messageHandler: MessageHandler;
+    messageHandler: MessageHandler | null;
     uuid: string;
     sessionsDir: string;
     logger: pino.Logger;
@@ -23,7 +23,7 @@ export class Bot {
         this.pluginLoader = new PluginLoader();
         this.bot = null;
         this.logger = pino({ level: 'error' });
-        this.messageHandler = new MessageHandler();
+        this.messageHandler = null;
     }
 
     async initialize() {
@@ -33,11 +33,11 @@ export class Bot {
     }
 
     async loadCommands() {
-        const { commandMap, beforeHandlers } = await this.pluginLoader.loadCommands(
+        const commands = await this.pluginLoader.loadCommands(
             path.join(__dirname, '..', 'commands')
         );
-        (global as any).commandMap = commandMap;
-        (global as any).beforeHandlers = beforeHandlers;
+        this.messageHandler = new MessageHandler(commands, {}); 
+        (global as any).commandMap = commands;
     }
 
     async initializeBot() {
@@ -54,10 +54,9 @@ export class Bot {
             this.logger.info(`Bot conectado: ${account.name || 'Nishikigi Chisato'}`);
             (global as any).mainBot = this.bot;
 
-            
             this.bot?.ws.ev.on('messages.upsert', ({ messages }: { messages: any[] }) => {
                 for (const m of messages) {
-                    this.messageHandler.handleMessage(this.bot!, m).catch(err =>
+                    this.messageHandler?.handle(this.bot!, m).catch(err =>
                         this.logger.error('Error procesando mensaje:', err)
                     );
                 }
