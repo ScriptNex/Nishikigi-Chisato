@@ -1,51 +1,30 @@
+import fs from 'fs';
+import path from 'path';
+
+const dbPath = path.join(process.cwd(), 'economy.json');
+
 export class EconomyService {
-    db: any
+    data: Record<string, number>;
 
-    constructor(db: any) {
-        this.db = db
-    }
-
-    getUser(id: string) {
-        if (!this.db.users[id]) {
-            this.db.users[id] = {
-                yenes: 0,
-                bank: 0,
-                characters: []
-            }
+    constructor() {
+        if (fs.existsSync(dbPath)) {
+            this.data = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+        } else {
+            this.data = {};
         }
-        return this.db.users[id]
     }
 
-    getMoney(id: string) {
-        return this.getUser(id).yenes
+    addMoney(userId: string, amount: number) {
+        if (!this.data[userId]) this.data[userId] = 0;
+        this.data[userId] += amount;
+        this.save();
     }
 
-    addMoney(id: string, amount: number) {
-        const user = this.getUser(id)
-        user.yenes += amount
-        return user.yenes
+    getMoney(userId: string) {
+        return this.data[userId] || 0;
     }
 
-    removeMoney(id: string, amount: number) {
-        const user = this.getUser(id)
-        if (user.yenes < amount) return false
-        user.yenes -= amount
-        return true
-    }
-
-    deposit(id: string, amount: number) {
-        const user = this.getUser(id)
-        if (user.yenes < amount) return false
-        user.yenes -= amount
-        user.bank += amount
-        return true
-    }
-
-    withdraw(id: string, amount: number) {
-        const user = this.getUser(id)
-        if (user.bank < amount) return false
-        user.bank -= amount
-        user.yenes += amount
-        return true
+    private save() {
+        fs.writeFileSync(dbPath, JSON.stringify(this.data, null, 2));
     }
 }
