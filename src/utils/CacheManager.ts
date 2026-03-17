@@ -1,30 +1,24 @@
 import NodeCache from 'node-cache';
 
-class CacheManager {
-    cache: NodeCache;
-    stats: { hits: number; misses: number; sets: number };
+export class CacheManager {
+    private cache: NodeCache;
+    private stats: { hits: number; misses: number; sets: number };
 
-    constructor(ttlSeconds = 60 * 5) {
+    constructor(ttlSeconds: number = 60 * 5) {
         this.cache = new NodeCache({ stdTTL: ttlSeconds, checkperiod: ttlSeconds * 0.2 });
         this.stats = { hits: 0, misses: 0, sets: 0 };
     }
 
     get<T>(key: string): T | undefined {
         const value = this.cache.get<T>(key);
-        if (value !== undefined) {
-            this.stats.hits++;
-        } else {
-            this.stats.misses++;
-        }
+        if (value !== undefined) this.stats.hits++;
+        else this.stats.misses++;
         return value;
     }
 
     set(key: string, value: any, ttl?: number): boolean {
         this.stats.sets++;
-        if (ttl) {
-            return this.cache.set(key, value, ttl);
-        }
-        return this.cache.set(key, value);
+        return ttl ? this.cache.set(key, value, ttl) : this.cache.set(key, value);
     }
 
     has(key: string): boolean {
@@ -46,10 +40,8 @@ class CacheManager {
 
     getStats() {
         const nodeStats = this.cache.getStats();
-        const hitRate = this.stats.hits + this.stats.misses > 0
-            ? ((this.stats.hits / (this.stats.hits + this.stats.misses)) * 100).toFixed(2)
-            : 0;
-
+        const totalAccesses = this.stats.hits + this.stats.misses;
+        const hitRate = totalAccesses > 0 ? ((this.stats.hits / totalAccesses) * 100).toFixed(2) : '0.00';
         return {
             ...this.stats,
             hitRate: `${hitRate}%`,
