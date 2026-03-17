@@ -26,10 +26,7 @@ export class Bot {
         this.bot = null;
         this.logger = globalLogger;
         this.messageHandler = new MessageHandler(new Map(), {});
-
-        this.services = {
-            economy: new EconomyService()
-        };
+        this.services = { economy: new EconomyService() };
     }
 
     async initialize() {
