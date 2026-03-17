@@ -3,7 +3,7 @@ import QRCode from 'qrcode';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { PluginLoader } from './PluginLoader.ts';
-import { globalLogger as logger } from '../utils/Logger.ts';
+import pino from 'pino';
 import { randomUUID } from 'crypto';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -14,16 +14,18 @@ export class Bot {
     pluginLoader: PluginLoader;
     uuid: string;
     sessionsDir: string;
+    logger: pino.Logger;
 
     constructor() {
         this.uuid = randomUUID();
         this.sessionsDir = path.join(__dirname, '..', 'sessions');
         this.pluginLoader = new PluginLoader();
         this.bot = null;
+        this.logger = pino({ level: 'error' }); 
     }
 
     async initialize() {
-        logger.info('Inicializando Nishikigi Chisato...');
+        this.logger.info('Inicializando Nishikigi Chisato...');
         await this.initializeBot();
     }
 
@@ -32,19 +34,19 @@ export class Bot {
         this.bot = new WapiBot(this.uuid, auth, { jid: '', pn: '', name: '' });
 
         
-        (this.bot as any).logger = { level: 'error', child: () => ({ level: 'error' }) };
+        (this.bot as any).logger = this.logger;
 
         this.bot.on('qr', async (qr: string) => {
-            logger.info('Escanea este código QR para iniciar sesión:');
+            this.logger.info('Escanea este código QR para iniciar sesión:');
             const qrString = await QRCode.toString(qr, { type: 'terminal', small: true });
             console.log(qrString);
         });
 
         this.bot.on('open', (account: any) => {
-            logger.info(`Bot conectado: ${account.name || 'Nishikigi Chisato'}`);
+            this.logger.info(`Bot conectado: ${account.name || 'Nishikigi Chisato'}`);
         });
 
-        this.bot.on('error', (err: any) => logger.error(err));
+        this.bot.on('error', (err: any) => this.logger.error(err));
     }
 
     async start() {
