@@ -2,22 +2,18 @@ import fs from 'fs/promises';
 import { existsSync } from 'fs';
 
 export const FileUtils = {
-    async readJSON(filePath: string): Promise<any> {
+    async readJSON(filePath: string): Promise<any | null> {
         try {
             const content = await fs.readFile(filePath, 'utf8');
             return JSON.parse(content);
         } catch (error: any) {
-            if (error.code === 'ENOENT') {
-                return null;
-            }
+            if (error.code === 'ENOENT') return null;
             throw error;
         }
     },
 
     async writeJSON(filePath: string, data: any, pretty: boolean = true): Promise<void> {
-        const content = pretty
-            ? JSON.stringify(data, null, 2)
-            : JSON.stringify(data);
+        const content = pretty ? JSON.stringify(data, null, 2) : JSON.stringify(data);
         await fs.writeFile(filePath, content, 'utf8');
     },
 
@@ -56,10 +52,7 @@ export const FileUtils = {
 
     async listFiles(dirPath: string, extension: string | null = null): Promise<string[]> {
         const files = await fs.readdir(dirPath);
-        if (extension) {
-            return files.filter(f => f.endsWith(extension));
-        }
-        return files;
+        return extension ? files.filter(f => f.endsWith(extension)) : files;
     }
 };
 
