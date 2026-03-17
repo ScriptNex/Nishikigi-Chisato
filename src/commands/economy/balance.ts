@@ -23,7 +23,7 @@ export default {
         const username = await getName(bot, chatId, targetJid, message.pushName);
 
         const text =
-            `ꕣ *Balance de @${username}*\n\n` +
+            `ꕣ Balance de @${username}\n\n` +
             `⟡ Billetera: *¥${formatNumberLarge(coins)}*\n` +
             `⟡ Banco: *¥${formatNumberLarge(bank)}*\n` +
             `⟡ Total: *¥${formatNumberLarge(total)}*`;
