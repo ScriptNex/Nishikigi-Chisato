@@ -2,10 +2,10 @@ import { Bot as WapiBot, LocalAuth } from '@imjxsx/wapi';
 import QRCode from 'qrcode';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { PluginLoader } from './PluginLoader.js';
-import { MessageHandler } from '../handlers/MessageHandler.js';
 import pino from 'pino';
-import { ServiceManager } from '../services/ServiceManager.js';
+import { PluginLoader } from './PluginLoader.js';
+import { MessageHandler } from './MessageHandler.js';
+import { EconomyService } from '../services/economy/EconomyService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,19 +14,19 @@ export class Bot {
     bot: WapiBot | null;
     pluginLoader: PluginLoader;
     messageHandler: MessageHandler;
-    services: ServiceManager;
     uuid: string;
     sessionsDir: string;
     logger: pino.Logger;
+    services: { economy: EconomyService };
 
     constructor() {
         this.uuid = '4f3b2a1c-7e9a-4d2f-8b6f-12a3456b7890';
         this.sessionsDir = path.join(__dirname, '..', 'sessions');
         this.pluginLoader = new PluginLoader();
-        this.messageHandler = new MessageHandler(new Map(), {});
-        this.services = new ServiceManager();
         this.bot = null;
-        this.logger = pino({ level: 'error' });
+        this.logger = pino({ level: 'info' });
+        this.messageHandler = new MessageHandler();
+        this.services = { economy: new EconomyService() };
     }
 
     async initialize() {
@@ -36,9 +36,11 @@ export class Bot {
     }
 
     async loadCommands() {
-        const commandsDir = path.join(__dirname, '..', 'commands');
-        const commands = await this.pluginLoader.loadCommands(commandsDir);
-        this.messageHandler.commands = commands;
+        const { commandMap, beforeHandlers } = await this.pluginLoader.loadCommands(
+            path.join(__dirname, '..', 'commands')
+        );
+        (global as any).commandMap = commandMap;
+        (global as any).beforeHandlers = beforeHandlers;
     }
 
     async initializeBot() {
@@ -55,11 +57,13 @@ export class Bot {
             this.logger.info(`Bot conectado: ${account.name || 'Nishikigi Chisato'}`);
             (global as any).mainBot = this.bot;
 
-            this.bot?.ws.ev.on('messages.upsert', ({ messages }: { messages: any[] }) => {
+            this.bot?.ws.ev.on('messages.upsert', async ({ messages }: { messages: any[] }) => {
                 for (const m of messages) {
-                    this.messageHandler.handle(this.bot!, m).catch(err =>
-                        this.logger.error('Error procesando mensaje:', err)
-                    );
+                    try {
+                        await this.messageHandler.handleMessage(this.bot!, m, this.services);
+                    } catch (err) {
+                        this.logger.error('Error procesando mensaje:', err);
+                    }
                 }
             });
         });
