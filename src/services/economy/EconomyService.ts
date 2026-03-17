@@ -1,30 +1,32 @@
 import fs from 'fs';
 import path from 'path';
 
-const dbPath = path.join(process.cwd(), 'economy.json');
-
 export class EconomyService {
-    data: Record<string, number>;
+    dataPath: string;
+    users: Record<string, number>;
 
     constructor() {
-        if (fs.existsSync(dbPath)) {
-            this.data = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
-        } else {
-            this.data = {};
+        this.dataPath = path.join(process.cwd(), 'data', 'economy.json');
+        if (!fs.existsSync(path.dirname(this.dataPath))) {
+            fs.mkdirSync(path.dirname(this.dataPath), { recursive: true });
         }
+        if (!fs.existsSync(this.dataPath)) {
+            fs.writeFileSync(this.dataPath, JSON.stringify({}));
+        }
+        this.users = JSON.parse(fs.readFileSync(this.dataPath, 'utf-8'));
+    }
+
+    save() {
+        fs.writeFileSync(this.dataPath, JSON.stringify(this.users, null, 2));
     }
 
     addMoney(userId: string, amount: number) {
-        if (!this.data[userId]) this.data[userId] = 0;
-        this.data[userId] += amount;
+        if (!this.users[userId]) this.users[userId] = 0;
+        this.users[userId] += amount;
         this.save();
     }
 
-    getMoney(userId: string) {
-        return this.data[userId] || 0;
-    }
-
-    private save() {
-        fs.writeFileSync(dbPath, JSON.stringify(this.data, null, 2));
+    getBalance(userId: string) {
+        return this.users[userId] || 0;
     }
 }
