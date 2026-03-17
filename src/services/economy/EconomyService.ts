@@ -1,16 +1,36 @@
 export class EconomyService {
-    users: Map<string, number>
+    users: Map<string, { yenes: number; bank: number }>
 
     constructor() {
         this.users = new Map()
     }
 
-    getMoney(userId: string) {
-        return this.users.get(userId) || 0
+    getUser(userId: string) {
+        if (!this.users.has(userId)) {
+            this.users.set(userId, { yenes: 0, bank: 0 })
+        }
+        return this.users.get(userId)!
     }
 
     addMoney(userId: string, amount: number) {
-        const current = this.getMoney(userId)
-        this.users.set(userId, current + amount)
+        const user = this.getUser(userId)
+        user.yenes += amount
+        this.users.set(userId, user)
+    }
+
+    deposit(userId: string, amount: number) {
+        const user = this.getUser(userId)
+        if (user.yenes >= amount) {
+            user.yenes -= amount
+            user.bank += amount
+        }
+    }
+
+    withdraw(userId: string, amount: number) {
+        const user = this.getUser(userId)
+        if (user.bank >= amount) {
+            user.bank -= amount
+            user.yenes += amount
+        }
     }
 }
