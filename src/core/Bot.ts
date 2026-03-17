@@ -3,9 +3,8 @@ import QRCode from 'qrcode';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { PluginLoader } from './PluginLoader.ts';
-import { globalLogger as logger } from '../utils/Logger.ts';
 import { v4 as uuidv4 } from 'uuid';
-import Pino from 'pino';
+import { globalLogger as logger } from '../utils/Logger.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,12 +12,10 @@ const __dirname = path.dirname(__filename);
 export class Bot {
     bot: any;
     pluginLoader: PluginLoader;
-    uuid: string;
 
     constructor() {
         this.pluginLoader = new PluginLoader();
         this.bot = null;
-        this.uuid = uuidv4(); 
     }
 
     async initialize() {
@@ -27,11 +24,10 @@ export class Bot {
     }
 
     async initializeBot() {
-        const auth = new LocalAuth(this.uuid, 'sessions');
-
-        const silentLogger = Pino({ level: 'error' });
-        this.bot = new WapiBot(this.uuid, auth, { jid: '', pn: '', name: '' });
-        this.bot.logger = silentLogger;
+        const uuid = uuidv4();
+        const auth = new LocalAuth(uuid, path.join(__dirname, '..', 'sessions'));
+        this.bot = new WapiBot(uuid, auth, { jid: '', pn: '', name: '' });
+        this.bot.logger.level = 'error';
 
         this.bot.on('qr', async (qr: string) => {
             const qrString = await QRCode.toString(qr, { type: 'terminal', small: true });
