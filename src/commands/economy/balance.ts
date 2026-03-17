@@ -1,17 +1,17 @@
 import { formatNumberLarge } from '../../utils/formatters.ts';
+import { getName } from '../../utils/helpers.ts';
 
 export default {
     name: 'balance',
     aliases: ['bal', 'saldo'],
     async execute({ bot, message, services }: any) {
-        const senderJid = message.key.participant || message.key.remoteJid;
-        if (!senderJid) return;
-
         const chatId = message.key.remoteJid;
+        if (!chatId) return;
+
         const mentioned = message.mentionedJid || [];
         const targetJid = mentioned.length > 0
             ? mentioned[0]
-            : (message.quoted ? message.quoted.sender : senderJid);
+            : (message.quoted ? message.quoted.sender : message.key.participant || message.key.remoteJid);
 
         const user = await services.economy.getUser(targetJid);
         if (!user) return bot.sendMessage(chatId, { text: 'El usuario no está registrado.' });
@@ -20,16 +20,15 @@ export default {
         const bank = user.bank ?? 0;
         const total = coins + bank;
 
-        const rawNumber = targetJid.split('@')[0];
-        const username = (message.pushName?.trim() || `+${rawNumber}`);
+        const username = await getName(bot, chatId, targetJid);
+        const rawNumber = targetJid.split('@')[0].replace(/\D/g, '');
 
-                const text =
+        const text =
             `ꕣ *Balance de ${username} (@${rawNumber})*\n\n` +
             `⟡ Billetera: *¥${formatNumberLarge(coins)}*\n` +
             `⟡ Banco: *¥${formatNumberLarge(bank)}*\n` +
             `⟡ Total: *¥${formatNumberLarge(total)}*`;
 
-        
         await bot.sendMessage(chatId, {
             text,
             mentions: [targetJid]
