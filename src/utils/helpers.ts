@@ -1,8 +1,8 @@
 import { getCachedGroupMetadata } from '../handlers/MessageHandler.js';
 
-export const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+export const sleep = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
 
-export const getBuffer = async (url: string) => {
+export const getBuffer = async (url: string): Promise<Buffer> => {
     const response = await fetch(url);
     return Buffer.from(await response.arrayBuffer());
 };
@@ -19,7 +19,11 @@ export const mentionUser = (userId: string) => {
     return [{ tag: userId.split('@')[0], id: userId }];
 };
 
-export const getName = async (bot: any, chatId: string | null, userId: string): Promise<string> => {
+export const getName = async (
+    bot: any,
+    chatId: string | null,
+    userId: string
+): Promise<string> => {
     try {
         const sock = bot.ws || bot.sock || bot;
         const extractNum = (id: string | null | undefined) => {
@@ -30,20 +34,23 @@ export const getName = async (bot: any, chatId: string | null, userId: string): 
         };
         const targetNum = extractNum(userId);
         const fullJid = targetNum + '@s.whatsapp.net';
-        if (sock.store && sock.store.contacts) {
+
+        if (sock.store?.contacts) {
             const contact = sock.store.contacts[fullJid];
             if (contact && (contact.name || contact.notify || contact.verifiedName))
                 return contact.name || contact.notify || contact.verifiedName;
         }
-        if (chatId && chatId.endsWith('@g.us')) {
+
+        if (chatId?.endsWith('@g.us')) {
             try {
                 const groupMetadata = await getCachedGroupMetadata(sock, chatId);
-                if (groupMetadata && groupMetadata.participants) {
+                if (groupMetadata?.participants) {
                     const participant = groupMetadata.participants.find((p: any) => p.id === fullJid);
                     if (participant) return participant.notify || participant.name || targetNum;
                 }
             } catch {}
         }
+
         return targetNum;
     } catch {
         const num = userId.split('@')[0].split(':').pop() || '';
@@ -51,7 +58,14 @@ export const getName = async (bot: any, chatId: string | null, userId: string): 
     }
 };
 
-export const getRandomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+export const getRandomInt = (min: number, max: number): number =>
+    Math.floor(Math.random() * (max - min + 1)) + min;
 
-export const styleText = (text: string) =>
-    text.replace(/a/g, 'ᥲ').replace(/e/g, 'ꫀ').replace(/t/g, 't').replace(/u/g, 'ᥙ').replace(/x/g, 'ꪎ').replace(/y/g, 'ᥡ');
+export const styleText = (text: string): string =>
+    text
+        .replace(/a/g, 'ᥲ')
+        .replace(/e/g, 'ꫀ')
+        .replace(/t/g, 't')
+        .replace(/u/g, 'ᥙ')
+        .replace(/x/g, 'ꪎ')
+        .replace(/y/g, 'ᥡ');
