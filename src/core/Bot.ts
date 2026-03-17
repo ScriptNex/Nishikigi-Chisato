@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { PluginLoader } from './PluginLoader.ts';
 import { globalLogger as logger } from '../utils/Logger.ts';
+import { v4 as uuidv4 } from 'uuid';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,10 +12,12 @@ const __dirname = path.dirname(__filename);
 export class Bot {
     bot: any;
     pluginLoader: PluginLoader;
+    uuid: string;
 
     constructor() {
         this.pluginLoader = new PluginLoader();
         this.bot = null;
+        this.uuid = uuidv4(); 
     }
 
     async initialize() {
@@ -23,9 +26,10 @@ export class Bot {
     }
 
     async initializeBot() {
-        const sessionsPath = path.resolve(process.cwd(), 'sessions'); 
-        const auth = new LocalAuth('nishikigi-chisato', sessionsPath); 
-        this.bot = new WapiBot('nishikigi-chisato', auth, { jid: '', pn: '', name: '' });
+        const auth = new LocalAuth(this.uuid, path.join(__dirname, '..', 'sessions'));
+        this.bot = new WapiBot(this.uuid, auth, { jid: '', pn: '', name: '' });
+
+        this.bot.logger.level = 'error'; 
 
         this.bot.on('qr', async (qr: string) => {
             const qrString = await QRCode.toString(qr, { type: 'terminal', small: true });
@@ -33,7 +37,11 @@ export class Bot {
         });
 
         this.bot.on('open', (account: any) => {
-            logger.info(`✅ Bot conectado: ${account.name || 'Nishikigi Chisato'}`);
+            logger.info(`Bot conectado: ${account.name || 'Nishikigi Chisato'}`);
+        });
+
+        this.bot.on('close', () => {
+            logger.warn('Conexión cerrada');
         });
 
         this.bot.on('error', (err: any) => logger.error(err));
