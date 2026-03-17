@@ -28,16 +28,13 @@ export class Bot {
 
     async initialize() {
         this.logger.info('Inicializando Nishikigi Chisato...');
-        await this.loadCommands();
-        await this.initializeBot();
-    }
-
-    async loadCommands() {
         const commands = await this.pluginLoader.loadCommands(
             path.join(__dirname, '..', 'commands')
         );
         this.messageHandler = new MessageHandler(commands, {}); 
         (global as any).commandMap = commands;
+
+        await this.initializeBot();
     }
 
     async initializeBot() {
