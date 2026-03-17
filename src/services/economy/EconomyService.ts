@@ -1,32 +1,16 @@
-import fs from 'fs';
-import path from 'path';
-
 export class EconomyService {
-    dataPath: string;
-    users: Record<string, number>;
+    users: Map<string, number>
 
     constructor() {
-        this.dataPath = path.join(process.cwd(), 'data', 'economy.json');
-        if (!fs.existsSync(path.dirname(this.dataPath))) {
-            fs.mkdirSync(path.dirname(this.dataPath), { recursive: true });
-        }
-        if (!fs.existsSync(this.dataPath)) {
-            fs.writeFileSync(this.dataPath, JSON.stringify({}));
-        }
-        this.users = JSON.parse(fs.readFileSync(this.dataPath, 'utf-8'));
+        this.users = new Map()
     }
 
-    save() {
-        fs.writeFileSync(this.dataPath, JSON.stringify(this.users, null, 2));
+    getMoney(userId: string) {
+        return this.users.get(userId) || 0
     }
 
     addMoney(userId: string, amount: number) {
-        if (!this.users[userId]) this.users[userId] = 0;
-        this.users[userId] += amount;
-        this.save();
-    }
-
-    getBalance(userId: string) {
-        return this.users[userId] || 0;
+        const current = this.getMoney(userId)
+        this.users.set(userId, current + amount)
     }
 }
