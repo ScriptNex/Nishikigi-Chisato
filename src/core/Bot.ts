@@ -4,10 +4,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { PluginLoader } from './PluginLoader.ts';
 import { globalLogger as logger } from '../utils/Logger.ts';
-import { v4 as uuidv4 } from 'uuid';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const SESSION_FILE = path.join(__dirname, '..', 'sessions', 'uuid.txt');
 
 export class Bot {
     bot: any;
@@ -17,7 +19,15 @@ export class Bot {
     constructor() {
         this.pluginLoader = new PluginLoader();
         this.bot = null;
-        this.uuid = uuidv4(); 
+
+        
+        if (fs.existsSync(SESSION_FILE)) {
+            this.uuid = fs.readFileSync(SESSION_FILE, 'utf-8').trim();
+        } else {
+            this.uuid = require('crypto').randomUUID();
+            fs.mkdirSync(path.dirname(SESSION_FILE), { recursive: true });
+            fs.writeFileSync(SESSION_FILE, this.uuid);
+        }
     }
 
     async initialize() {
@@ -29,7 +39,7 @@ export class Bot {
         const auth = new LocalAuth(this.uuid, path.join(__dirname, '..', 'sessions'));
         this.bot = new WapiBot(this.uuid, auth, { jid: '', pn: '', name: '' });
 
-        this.bot.logger.level = 'error'; 
+        this.bot.logger.level = 'error';
 
         this.bot.on('qr', async (qr: string) => {
             const qrString = await QRCode.toString(qr, { type: 'terminal', small: true });
