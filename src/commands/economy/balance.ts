@@ -9,9 +9,12 @@ export default {
         if (!chatId) return;
 
         const mentioned = message.mentionedJid || [];
-        const targetJid = mentioned.length > 0
+        let targetJid = mentioned.length > 0
             ? mentioned[0]
             : (message.quoted ? message.quoted.sender : message.key.participant || message.key.remoteJid);
+
+        const number = targetJid.split('@')[0];
+        targetJid = `${number}@s.whatsapp.net`;
 
         const user = await services.economy.getUser(targetJid);
         if (!user) return bot.sendMessage(chatId, { text: 'El usuario no está registrado.' });
@@ -21,10 +24,9 @@ export default {
         const total = coins + bank;
 
         const username = await getName(bot, chatId, targetJid, message.pushName);
-        const jidNumber = targetJid.split('@')[0];
 
         const text =
-            `ꕣ *Balance de @${jidNumber}*\n\n` +
+            `ꕣ *Balance de @${number}*\n\n` +
             `⟡ Billetera: *¥${formatNumberLarge(coins)}*\n` +
             `⟡ Banco: *¥${formatNumberLarge(bank)}*\n` +
             `⟡ Total: *¥${formatNumberLarge(total)}*`;
