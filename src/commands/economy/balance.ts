@@ -13,8 +13,10 @@ export default {
         const bank = user.bank ?? 0;
         const total = coins + bank;
 
+        const username = senderJid.split('@')[0];
+
         const text = styleText(
-            `ꕣ *Balance de Usuario*\n\n` +
+            `ꕣ *Balance de @${username}*\n\n` +
             `⟡ Billetera: *¥${formatNumberLarge(coins)}*\n` +
             `⟡ Banco: *¥${formatNumberLarge(bank)}*\n` +
             `⟡ Total: *¥${formatNumberLarge(total)}*`
