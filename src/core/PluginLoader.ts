@@ -12,12 +12,10 @@ export class PluginLoader {
         const files = fs.readdirSync(dir)
 
         for (const file of files) {
-            if (!file.endsWith('.ts') && !file.endsWith('.js')) continue
-
+            if (!file.endsWith('.ts')) continue
             const fullPath = path.join(dir, file)
             const module = await import(fullPath)
             const cmd = module.default
-
             if (cmd?.name) this.commands.set(cmd.name, cmd)
         }
 
