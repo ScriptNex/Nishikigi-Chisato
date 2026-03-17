@@ -27,7 +27,7 @@ export const getName = async (bot: any, chatId: string | null, userId: string, p
 
         if (sock.store && sock.store.contacts) {
             const contact = sock.store.contacts[fullJid];
-            if (contact) return contact.name || contact.notify || contact.verifiedName || pushName || 'Usuario';
+            if (contact) return contact.name || contact.notify || contact.verifiedName || pushName || fullJid.split('@')[0];
         }
 
         if (chatId && chatId.endsWith('@g.us')) {
@@ -35,14 +35,14 @@ export const getName = async (bot: any, chatId: string | null, userId: string, p
                 const groupMetadata = await getCachedGroupMetadata(sock, chatId);
                 if (groupMetadata && groupMetadata.participants) {
                     const participant = groupMetadata.participants.find((p: any) => p.id === fullJid);
-                    if (participant) return participant.notify || participant.name || pushName || 'Usuario';
+                    if (participant) return participant.notify || participant.name || pushName || fullJid.split('@')[0];
                 }
             } catch {}
         }
 
-        return pushName || 'Usuario';
+        return pushName || fullJid.split('@')[0];
     } catch {
-        return pushName || 'Usuario';
+        return pushName || userId.split('@')[0];
     }
 };
 
