@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { PluginLoader } from './PluginLoader.ts';
 import { MessageHandler } from '../handlers/MessageHandler.ts';
+import { EconomyService } from '../services/EconomyService.ts';
 import pino from 'pino';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -12,7 +13,8 @@ const __dirname = path.dirname(__filename);
 export class Bot {
     bot: WapiBot | null;
     pluginLoader: PluginLoader;
-    messageHandler: MessageHandler | null;
+    messageHandler: MessageHandler;
+    economyService: EconomyService;
     uuid: string;
     sessionsDir: string;
     logger: pino.Logger;
@@ -23,18 +25,20 @@ export class Bot {
         this.pluginLoader = new PluginLoader();
         this.bot = null;
         this.logger = pino({ level: 'error' });
-        this.messageHandler = null;
+        this.economyService = new EconomyService();
+        this.messageHandler = new MessageHandler(this.pluginLoader.commands, {
+            economy: this.economyService
+        });
     }
 
     async initialize() {
-        this.logger.info('Inicializando Nishikigi Chisato...');
-        const commands = await this.pluginLoader.loadCommands(
-            path.join(__dirname, '..', 'commands')
-        );
-        this.messageHandler = new MessageHandler(commands, {}); 
-        (global as any).commandMap = commands;
-
+        await this.loadCommands();
         await this.initializeBot();
+    }
+
+    async loadCommands() {
+        const commandsDir = path.join(__dirname, '..', 'commands');
+        await this.pluginLoader.loadCommands(commandsDir);
     }
 
     async initializeBot() {
@@ -43,7 +47,6 @@ export class Bot {
         (this.bot as any).logger = this.logger;
 
         this.bot.on('qr', async (qr: string) => {
-            this.logger.info('Escanea este código QR:');
             console.log(await QRCode.toString(qr, { type: 'terminal', small: true }));
         });
 
@@ -53,7 +56,7 @@ export class Bot {
 
             this.bot?.ws.ev.on('messages.upsert', ({ messages }: { messages: any[] }) => {
                 for (const m of messages) {
-                    this.messageHandler?.handle(this.bot!, m).catch(err =>
+                    this.messageHandler.handle(this.bot!, m).catch(err =>
                         this.logger.error('Error procesando mensaje:', err)
                     );
                 }
