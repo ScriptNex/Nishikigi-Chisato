@@ -20,7 +20,7 @@ export default {
         const bank = user.bank ?? 0;
         const total = coins + bank;
 
-        const username = await getName(bot, chatId, targetJid);
+        const username = (await getName(bot, chatId, targetJid)).replace(/\s+/g, '') || 'Usuario';
 
         const text =
             `ꕣ *Balance de @${username}*\n\n` +
