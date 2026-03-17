@@ -20,7 +20,6 @@ export default {
         const bank = user.bank ?? 0;
         const total = coins + bank;
 
-        
         const username = await getName(bot, chatId, targetJid) || 'Usuario';
 
         const text =
@@ -29,7 +28,6 @@ export default {
             `⟡ Banco: *¥${formatNumberLarge(bank)}*\n` +
             `⟡ Total: *¥${formatNumberLarge(total)}*`;
 
-        
         await bot.sendMessage(chatId, {
             text,
             mentions: [targetJid]
