@@ -1,25 +1,22 @@
-import { formatNumberLarge, styleText } from '../../utils/formatters.js';
+import { formatNumberLarge, styleText } from '../../utils/formatters.ts';
 
 export default {
     name: 'balance',
-    aliases: ['bal', 'saldo'],
-    async execute({ bot, message, services }: { bot: any; message: any; services: any }) {
-        const sender: string = message.key.remoteJid;
-        const user = services.economy.getUser(sender) || { yenes: 0, bank: 0 };
+    async execute({ bot, message, services }: any) {
+        const sender = message.key.remoteJid;
+        const user = services.economy.getUser(sender);
 
         const coins = user.yenes || 0;
         const bank = user.bank || 0;
         const total = coins + bank;
 
-        const text = styleText(
-            `ꕣ *Balance de Usuario*\n\n` +
-            `⟡ Billetera: *¥${formatNumberLarge(coins)}*\n` +
-            `⟡ Banco: *¥${formatNumberLarge(bank)}*\n` +
-            `⟡ Total: *¥${formatNumberLarge(total)}*`
-        );
-
         await bot.sendMessage(sender, {
-            text,
+            text: styleText(
+                `💴 Balance de @${sender.split('@')[0]}\n\n` +
+                `💰 Yenes: ¥${formatNumberLarge(coins)}\n` +
+                `🏦 Banco: ¥${formatNumberLarge(bank)}\n` +
+                `⛀ Total: ¥${formatNumberLarge(total)}`
+            ),
             mentions: [sender]
         });
     }
