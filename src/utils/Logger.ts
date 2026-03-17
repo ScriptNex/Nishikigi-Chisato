@@ -7,7 +7,7 @@ const LOG_LEVELS: Record<string, number> = {
     ERROR: 3
 };
 
-class Logger {
+export class Logger {
     context: string;
     minLevel: number;
     startTime: number;
@@ -18,11 +18,11 @@ class Logger {
         this.startTime = Date.now();
     }
 
-    getTimestamp(): string {
+    private getTimestamp(): string {
         return new Date().toISOString().slice(11, 23);
     }
 
-    getUptime(): string {
+    private getUptime(): string {
         const uptime = Math.floor((Date.now() - this.startTime) / 1000);
         const hours = Math.floor(uptime / 3600);
         const minutes = Math.floor((uptime % 3600) / 60);
@@ -30,27 +30,18 @@ class Logger {
         return `${hours}h${minutes}m${seconds}s`;
     }
 
-    log(level: string, message: string, data: any = null): void {
+    private log(level: keyof typeof LOG_LEVELS, message: string, data?: any): void {
         if (LOG_LEVELS[level] < this.minLevel) return;
 
         const timestamp = this.getTimestamp();
         let prefix = '';
 
         switch (level) {
-            case 'DEBUG':
-                prefix = chalk.cyan('🔎︎ [DEBUG]');
-                break;
-            case 'INFO':
-                prefix = chalk.green('✠ [INFO]');
-                break;
-            case 'WARN':
-                prefix = chalk.yellow('⚠︎ [WARN]');
-                break;
-            case 'ERROR':
-                prefix = chalk.red('✘ [ERROR]');
-                break;
-            default:
-                prefix = chalk.grey('• [LOG]');
+            case 'DEBUG': prefix = chalk.cyan('🔎︎ [DEBUG]'); break;
+            case 'INFO': prefix = chalk.green('✠ [INFO]'); break;
+            case 'WARN': prefix = chalk.yellow('⚠︎ [WARN]'); break;
+            case 'ERROR': prefix = chalk.red('✘ [ERROR]'); break;
+            default: prefix = chalk.grey('• [LOG]');
         }
 
         let output = `${prefix} ${chalk.gray(`[${timestamp}]`)} ${chalk.bold(`[${this.context}]`)} ${message}`;
@@ -69,7 +60,7 @@ class Logger {
     }
 
     debug(message: string, data?: any): void { this.log('DEBUG', message, data); }
-    trace(message: string, data?: any): void { this.debug(message, data); } // <-- agregado
+    trace(message: string, data?: any): void { this.debug(message, data); }
     info(message: string, data?: any): void { this.log('INFO', message, data); }
     warn(message: string, data?: any): void { this.log('WARN', message, data); }
     error(message: string, data?: any): void { this.log('ERROR', message, data); }
@@ -87,6 +78,5 @@ class Logger {
     }
 }
 
-const globalLogger = new Logger('Alya', process.env.LOG_LEVEL || 'INFO');
-export { Logger, globalLogger };
+export const globalLogger = new Logger('Alya', process.env.LOG_LEVEL || 'INFO');
 export default Logger;
