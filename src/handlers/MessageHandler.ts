@@ -2,14 +2,13 @@ export class MessageHandler {
     commands: Map<string, any>;
     services: any;
 
-    constructor(commands: Map<string, any> = new Map(), services: any = {}) {
+    constructor(commands: Map<string, any>, services: any) {
         this.commands = commands;
         this.services = services;
     }
 
     async handle(bot: any, message: any) {
-        if (!this.commands) this.commands = new Map();
-        const text = message.message?.conversation || '';
+        const text = message.message?.conversation || message.message?.extendedTextMessage?.text || '';
         if (!text.startsWith('#')) return;
 
         const args = text.slice(1).trim().split(' ');
